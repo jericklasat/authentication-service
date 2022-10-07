@@ -1,0 +1,40 @@
+version: '3'
+
+services:
+  auth-service:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: auth-service
+    ports:
+      - "4001:4001"
+    volumes:
+      - .:/app
+      - /app/node_modules
+    networks:
+      - auth-network
+
+  auth-db:
+    image: postgres:14
+    restart: "no"
+    container_name: auth-db
+    environment:
+      POSTGRES_USER: 'auth_postgres'
+      POSTGRES_PASSWORD: '145769823'
+      POSTGRES_DB: 'auth'
+    expose:
+      - '5432'
+    ports:
+      - '5436:5432'
+    volumes:
+      - auth-db:/var/lib/postgresql/data
+    networks:
+      - auth-network
+
+networks:
+  auth-network:
+    driver: bridge
+
+volumes:
+  auth-db:
+    driver: local
