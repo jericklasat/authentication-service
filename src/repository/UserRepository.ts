@@ -1,10 +1,9 @@
 import databaseInit from "../../config/database/init";
 import {UserEntity} from "../entity/UserEntity";
-import {UserModel} from "../model/UserModel";
 import argon2 from "argon2";
+import _IUserRepository from "../types/repository/_IUserRepository";
 
-
-const create: (user: UserModel) => Promise<string> = async (user: UserModel) => {
+const create: _IUserRepository['create'] = async (user) => {
   const hashedPassword = await argon2.hash(user.password);
   const entity = new UserEntity(user.emailAddress, user.mobileNumber, hashedPassword);
   await databaseInit.em.persistAndFlush(entity);
