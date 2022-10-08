@@ -8,6 +8,7 @@ import bodyParser from "body-parser";
 import databaseInit from "./config/database/init";
 
 const app = express();
+console.log('test');
 
 const main = async () => {
   const contextPath = process.env.CONTEXT_PATH || '/api';
