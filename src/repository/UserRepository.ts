@@ -8,7 +8,7 @@ const create: _IUserRepository['create'] = async (user) => {
   const entity = new UserEntity(user.emailAddress, user.mobileNumber, hashedPassword);
   await databaseInit.em.persistAndFlush(entity);
 
-  return entity.uuid;
+  return entity.id;
 }
 
 const findByEmail = async (email: string) => {

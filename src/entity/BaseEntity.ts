@@ -3,7 +3,7 @@ import {v4} from "uuid";
 
 export abstract class BaseEntity{
   @PrimaryKey()
-  uuid: string = v4()
+  id: string = v4()
 
   @Property({
     onCreate: () => new Date()

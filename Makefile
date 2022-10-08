@@ -33,6 +33,9 @@ uninstall:
 	docker exec ${CONTAINER} bash -c "npm uninstall $(package)"
 	make update-node_modules
 
+migration:
+	docker exec ${CONTAINER} bash -c "npx mikro-orm migration:create --blank"
+
 migration-diff:
 	docker exec ${CONTAINER} bash -c "npx mikro-orm migration:create"
 

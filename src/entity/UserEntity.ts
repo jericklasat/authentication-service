@@ -10,6 +10,7 @@ export class UserEntity extends BaseEntity {
 
   @Property()
   @Index({name: 'u_mobile'})
+  @Unique()
   mobileNumber!: string;
 
   @Property()

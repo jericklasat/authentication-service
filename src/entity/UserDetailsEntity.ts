@@ -4,7 +4,7 @@ import {BaseEntity} from "./BaseEntity";
 @Entity({tableName: 'user_details'})
 export class UserDetailsEntity extends BaseEntity {
   @Property()
-  @Index({name: 'r_u_uuid'})
+  @Index({name: 'ud_uid'})
   userId!: string;
 
   @Property()

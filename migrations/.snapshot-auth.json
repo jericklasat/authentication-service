@@ -6,8 +6,8 @@
   "tables": [
     {
       "columns": {
-        "uuid": {
-          "name": "uuid",
+        "id": {
+          "name": "id",
           "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
@@ -45,15 +45,6 @@
           "length": 6,
           "mappedType": "datetime"
         },
-        "user_id": {
-          "name": "user_id",
-          "type": "varchar(255)",
-          "unsigned": false,
-          "autoincrement": false,
-          "primary": false,
-          "nullable": false,
-          "mappedType": "string"
-        },
         "name": {
           "name": "name",
           "type": "varchar(255)",
@@ -68,18 +59,9 @@
       "schema": "public",
       "indexes": [
         {
-          "columnNames": [
-            "user_id"
-          ],
-          "composite": false,
-          "keyName": "u_uuid",
-          "primary": false,
-          "unique": false
-        },
-        {
           "keyName": "role_pkey",
           "columnNames": [
-            "uuid"
+            "id"
           ],
           "composite": false,
           "primary": true,
@@ -91,8 +73,8 @@
     },
     {
       "columns": {
-        "uuid": {
-          "name": "uuid",
+        "id": {
+          "name": "id",
           "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
@@ -204,14 +186,14 @@
             "user_id"
           ],
           "composite": false,
-          "keyName": "r_u_uuid",
+          "keyName": "ud_uid",
           "primary": false,
           "unique": false
         },
         {
           "keyName": "user_details_pkey",
           "columnNames": [
-            "uuid"
+            "id"
           ],
           "composite": false,
           "primary": true,
@@ -223,8 +205,8 @@
     },
     {
       "columns": {
-        "uuid": {
-          "name": "uuid",
+        "id": {
+          "name": "id",
           "type": "varchar(255)",
           "unsigned": false,
           "autoincrement": false,
@@ -331,9 +313,74 @@
           "unique": false
         },
         {
+          "columnNames": [
+            "mobile_number"
+          ],
+          "composite": false,
+          "keyName": "user_mobile_number_unique",
+          "primary": false,
+          "unique": true
+        },
+        {
           "keyName": "user_pkey",
           "columnNames": [
-            "uuid"
+            "id"
+          ],
+          "composite": false,
+          "primary": true,
+          "unique": true
+        }
+      ],
+      "checks": [],
+      "foreignKeys": {}
+    },
+    {
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
+        "user_id": {
+          "name": "user_id",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
+        "role_id": {
+          "name": "role_id",
+          "type": "varchar(255)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "mappedType": "string"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamptz(0)",
+          "unsigned": false,
+          "autoincrement": false,
+          "primary": false,
+          "nullable": false,
+          "length": 6,
+          "mappedType": "datetime"
+        }
+      },
+      "name": "user_role",
+      "schema": "public",
+      "indexes": [
+        {
+          "keyName": "user_role_pkey",
+          "columnNames": [
+            "id"
           ],
           "composite": false,
           "primary": true,
