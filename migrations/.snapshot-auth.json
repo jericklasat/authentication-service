@@ -314,6 +314,15 @@
         },
         {
           "columnNames": [
+            "email_address"
+          ],
+          "composite": false,
+          "keyName": "user_email_address_unique",
+          "primary": false,
+          "unique": true
+        },
+        {
+          "columnNames": [
             "mobile_number"
           ],
           "composite": false,

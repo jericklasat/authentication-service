@@ -18,7 +18,7 @@ router.post('/register', checkSchema(UserInput), (request: express.Request, resp
   }).catch(errors => {
     console.log(errors);
 
-    response.sendStatus(500);
+    response.status(400).json({message: errors?.detail});
   });
 });
 
@@ -37,9 +37,9 @@ router.post('/login', checkSchema(LoginInput), (request: express.Request, respon
 
       return response.send(result);
     }).catch(errors => {
-    console.log(errors);
+      console.log(errors);
 
-    return response.sendStatus(500);
+      return response.sendStatus(500);
   })
 });
 

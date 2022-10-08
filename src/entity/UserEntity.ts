@@ -1,10 +1,11 @@
 import {BaseEntity} from "./BaseEntity";
-import {Entity, Index, Property} from "@mikro-orm/core";
+import {Entity, Index, Property, Unique} from "@mikro-orm/core";
 
 @Entity({tableName: 'user'})
 export class UserEntity extends BaseEntity {
   @Property()
   @Index({name: 'u_email'})
+  @Unique()
   emailAddress!: string;
 
   @Property()

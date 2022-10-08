@@ -3,21 +3,19 @@ import userRepository from "../repository/UserRepository";
 import tokenService from "./TokenService";
 
 const loginService = async (email: string, password: string) => {
-  if (! password || ! email) {
-    return null;
-  }
-
   const user = await userRepository.findByEmail(email);
   const isPasswordMatched = await argon2.verify(user.password, password);
 
-  if (isPasswordMatched) {
-    return {
-      accessToken: tokenService.generateToken(),
-      refreshToken: tokenService.generateToken('30 days'),
-    }
+  if (! isPasswordMatched) {
+    return null;
   }
+  // TODO: Identify what are the data that should be in the jwt
+  // also include roles
 
-  return null;
+  return {
+    accessToken: tokenService.generate(),
+    refreshToken: tokenService.generate('30 days'),
+  }
 }
 
 export default  {
