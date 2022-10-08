@@ -1,13 +1,13 @@
 import fs from "fs";
 import jwt from "jsonwebtoken";
 
-export const generateToken = (expiration: string = '1d') => {
+const generateToken = (expiration: string = '1d') => {
   const secret = fs.readFileSync('./certificates/private.pem');
 
   return jwt.sign({}, secret, {expiresIn: expiration, algorithm: 'RS256'});
 }
 
-export const generateTokensFromRefreshToken = (token: string) => {
+const generateTokensFromRefreshToken = (token: string) => {
   try {
     const secret = fs.readFileSync('./certificates/private.pem');
     const decoded = jwt.verify(token, secret);
@@ -23,4 +23,9 @@ export const generateTokensFromRefreshToken = (token: string) => {
 
     return '';
   }
+}
+
+export default {
+  generateToken,
+  generateTokensFromRefreshToken
 }

@@ -1,5 +1,5 @@
 import express from 'express';
-import router from "./src/routes";
+import controller from "./src/controller";
 import MikroOrmConfig from './config/database/mikro-orm.config';
 import 'dotenv/config';
 import {MikroORM, RequestContext} from "@mikro-orm/core";
@@ -15,9 +15,9 @@ const main = async () => {
   databaseInit.em = databaseInit.orm.em;
 
   app.use((req, res, next) => RequestContext.create(databaseInit.em, next));
-  app.use(bodyParser.json()) // for parsing application/json
-  app.use(bodyParser.urlencoded({ extended: true })) // for parsing application/x-www-form-
-  app.use(contextPath, router);
+  app.use(bodyParser.json());
+  app.use(bodyParser.urlencoded({ extended: true }));
+  app.use(contextPath, controller);
   app.use((req, res) => res.status(404).json({message: 'No route found'}));
 
   databaseInit.server = app.listen(process.env.APP_PORT, () => {

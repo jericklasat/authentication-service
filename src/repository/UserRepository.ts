@@ -11,6 +11,11 @@ const create: _IUserRepository['create'] = async (user) => {
   return entity.uuid;
 }
 
+const findByEmail = async (email: string) => {
+  return await databaseInit.em.findOneOrFail(UserEntity, {emailAddress: email});
+}
+
 export default {
   create,
+  findByEmail,
 }
