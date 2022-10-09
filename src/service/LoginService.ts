@@ -1,20 +1,35 @@
 import argon2 from "argon2";
 import userRepository from "../repository/UserRepository";
 import tokenService from "./TokenService";
+import {_TGeneratePayload} from "../types/service/_ITokenService";
+import userRoleRepository from "../repository/UserRoleRepository";
+import userDetailsRepository from "../repository/UserDetailsRepository";
 
 const loginService = async (email: string, password: string) => {
   const user = await userRepository.findByEmail(email);
   const isPasswordMatched = await argon2.verify(user.password, password);
 
-  if (! isPasswordMatched) {
-    return null;
+  if (! isPasswordMatched) return null;
+
+  if (! user.isActive) {
+    return {
+      'message': 'Please activate your account, if you dont receive activation link please coordinate to administrator.'
+    }
   }
-  // TODO: Identify what are the data that should be in the jwt
-  // also include roles
+
+  // TODO: integrate client id and search how to use in micro services
+  const details = await userDetailsRepository.findByUid(user.id);
+  const roles = await userRoleRepository.getRoleNamesByUid(user.id);
+  const payload: _TGeneratePayload = {
+    sub: user.id,
+    email: user.emailAddress,
+    name: details.getFullName(),
+    roles,
+  };
 
   return {
-    accessToken: tokenService.generate(),
-    refreshToken: tokenService.generate('30 days'),
+    accessToken: tokenService.generate(payload),
+    refreshToken: tokenService.generate(payload, '30 days'),
   }
 }
 

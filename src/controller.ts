@@ -39,7 +39,7 @@ router.post('/login', checkSchema(LoginInput), (request: express.Request, respon
     }).catch(errors => {
       console.log(errors);
 
-      return response.sendStatus(500);
+      return response.sendStatus(401);
   })
 });
 

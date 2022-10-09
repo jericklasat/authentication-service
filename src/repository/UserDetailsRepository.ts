@@ -8,6 +8,11 @@ const create: _IUserDetailsRepository['create'] = (uid: string, user) => {
   databaseInit.em.persistAndFlush(entity).catch(err => console.log(err));
 }
 
+const findByUid = async (uid: string) => {
+  return await databaseInit.em.findOneOrFail(UserDetailsEntity, {userId: uid})
+}
+
 export default {
   create,
+  findByUid,
 }

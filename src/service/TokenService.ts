@@ -1,10 +1,11 @@
 import fs from "fs";
 import jwt from "jsonwebtoken";
+import {_TGeneratePayload, _TGenerate} from "../types/service/_ITokenService";
 
-const generate = (expiration: string = '1d') => {
+const generate: _TGenerate['generate'] = (payload, expiration) => {
   const secret = fs.readFileSync('./certificates/private.pem');
 
-  return jwt.sign({}, secret, {expiresIn: expiration, algorithm: 'RS256'});
+  return jwt.sign(payload, secret, {expiresIn: expiration ?? '1d', algorithm: 'RS256'});
 }
 
 const generateFromRefreshToken = (token: string) => {
@@ -13,10 +14,11 @@ const generateFromRefreshToken = (token: string) => {
     const decoded = jwt.verify(token, secret);
 
     // TODO: check if token is valid
+    const payload: _TGeneratePayload = {};
 
     return {
-      accessToken: generate(),
-      refreshToken: generate('30 days'),
+      accessToken: generate(payload),
+      refreshToken: generate(payload, '30 days'),
     };
   } catch(err: any) {
     console.log(err);

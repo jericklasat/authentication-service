@@ -43,4 +43,11 @@ export class UserDetailsEntity extends BaseEntity {
     this.gender = gender;
     this.dateOfBirth = dateOfBirth;
   }
+
+  getFullName(): string {
+    let name = this.firstName;
+    name = this.middleName ? name + ' ' + this.middleName : name;
+
+    return name + ' ' + this.lastName;
+  }
 }
