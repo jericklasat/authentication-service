@@ -9,7 +9,10 @@ const loginService = async (email: string, password: string) => {
   const user = await userRepository.findByEmail(email);
   const isPasswordMatched = await argon2.verify(user.password, password);
 
-  if (! isPasswordMatched) return null;
+  if (! isPasswordMatched) {
+    // TODO: implement login retry count
+    return null;
+  }
 
   if (! user.isActive) {
     return {
@@ -17,7 +20,7 @@ const loginService = async (email: string, password: string) => {
     }
   }
 
-  // TODO: integrate client id and search how to use in micro services
+  // TODO: integrate client id and search how to use it in micro services
   const details = await userDetailsRepository.findByUid(user.id);
   const roles = await userRoleRepository.getRoleNamesByUid(user.id);
   const payload: _TGeneratePayload = {
@@ -27,10 +30,14 @@ const loginService = async (email: string, password: string) => {
     roles,
   };
 
-  return {
+  const tokens = {
     accessToken: tokenService.generate(payload),
     refreshToken: tokenService.generate(payload, '30 days'),
-  }
+  };
+
+  tokenService.save(user.id, tokens.refreshToken);
+
+  return tokens;
 }
 
 export default  {

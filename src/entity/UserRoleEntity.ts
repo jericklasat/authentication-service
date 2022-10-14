@@ -4,7 +4,7 @@ import {v4} from "uuid";
 @Entity({tableName: 'user_role'})
 export class UserRoleEntity {
   @PrimaryKey()
-  id: string = v4()
+  id: string = v4();
 
   @Property()
   userId!: string;

@@ -1,33 +1,108 @@
 import fs from "fs";
 import jwt from "jsonwebtoken";
-import {_TGeneratePayload, _TGenerate} from "../types/service/_ITokenService";
+import {_TTokenService} from "../types/service/_ITokenService";
+import activeRefreshTokenRepository from "../repository/ActiveRefreshTokenRepository";
+import invalidRefreshTokenRepository from "../repository/InvalidRefreshTokenRepository";
 
-const generate: _TGenerate['generate'] = (payload, expiration) => {
+// TODO: create cron job to delete expired blacklisted_tokens and live_tokens(more frequent)
+// TODO: check if access token is revoked
+
+const generate: _TTokenService['generate'] = (payload, expiration) => {
   const secret = fs.readFileSync('./certificates/private.pem');
 
-  return jwt.sign(payload, secret, {expiresIn: expiration ?? '1d', algorithm: 'RS256'});
+  return jwt.sign(payload, secret, {expiresIn: expiration ?? '30min', algorithm: 'RS256'});
 }
 
-const generateFromRefreshToken = (token: string) => {
+const invalidate: _TTokenService['invalidate'] = async (refreshToken) => {
+  // TODO: create hook to broadcast invalidated access token
+  const secret = fs.readFileSync('./certificates/private.pem');
+  const decoded = jwt.verify(refreshToken, secret, {algorithms: ["RS256"]});
+
+  if (typeof decoded === 'string') {
+    return false;
+  }
+
+  await activeRefreshTokenRepository.remove(refreshToken);
+
+  if (! decoded.exp) {
+    return false;
+  }
+
+  invalidRefreshTokenRepository.create(refreshToken, decoded.exp);
+
+  return true;
+}
+
+const save: _TTokenService['save'] = (userId, refreshToken) => {
+  activeRefreshTokenRepository.create(userId, refreshToken);
+}
+
+const refresh: _TTokenService['refresh'] = async (refreshToken) => {
+  if (! refreshToken) {
+    return null;
+  }
+
   try {
     const secret = fs.readFileSync('./certificates/private.pem');
-    const decoded = jwt.verify(token, secret);
+    const decoded = jwt.verify(refreshToken, secret, {algorithms: ["RS256"]});
 
-    // TODO: check if token is valid
-    const payload: _TGeneratePayload = {};
+    if (typeof decoded === 'string') {
+      return createErrorMessage(decoded);
+    }
+
+    if (await isTokenCompromised(refreshToken, <string>decoded.sub)) {
+      return createErrorMessage('Account is compromised.');
+    }
+
+    const isInvalidated = invalidate(refreshToken);
+
+    if (! isInvalidated) {
+      return createErrorMessage('Invalidation failed.');
+    }
+
+    if (! decoded.sub) {
+      return createErrorMessage('Undefined subject.');
+    }
+
+    delete decoded.exp;
+    decoded.iat = Date.now();
+
+    const newRefreshToken = generate(decoded, '30 days');
+    save(decoded.sub, newRefreshToken);
 
     return {
-      accessToken: generate(payload),
-      refreshToken: generate(payload, '30 days'),
-    };
+      accessToken: generate(decoded),
+      refreshToken: newRefreshToken,
+    }
   } catch(err: any) {
     console.log(err);
 
-    return '';
+    return createErrorMessage(err.message);
   }
+}
+
+async function isTokenCompromised(refreshToken: string, userId: string) {
+  const invalidRefreshToken = await invalidRefreshTokenRepository.findByRefreshToken(refreshToken);
+  if (null == invalidRefreshToken) {
+    return false;
+  }
+
+  const activeRefreshTokens = await activeRefreshTokenRepository.findByUserId(userId);
+
+  activeRefreshTokens.map(async activeRefreshToken => {
+    await invalidate(activeRefreshToken.refreshToken);
+  });
+
+  return true;
+}
+
+function createErrorMessage(errorMessage: string) {
+  return {errorMessage}
 }
 
 export default {
   generate,
-  generateFromRefreshToken
+  invalidate,
+  refresh,
+  save,
 }
