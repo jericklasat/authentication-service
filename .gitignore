@@ -108,3 +108,5 @@ dist
 
 # certificates
 certificates/*.pem
+
+public/.well-known
