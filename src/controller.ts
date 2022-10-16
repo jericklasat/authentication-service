@@ -4,6 +4,7 @@ import loginService from "./service/LoginService";
 import {checkSchema, validationResult} from "express-validator";
 import {LoginInput, UserInput} from "./validations/InputValidation";
 import tokenService from "./service/TokenService";
+import CertificateService from "./service/CertificateService";
 
 const router = express.Router();
 
@@ -44,6 +45,26 @@ router.post('/login', checkSchema(LoginInput), (request: express.Request, respon
   })
 });
 
+router.post('/logout', (request, response) => {
+  const token = request.headers.authorization?.replace('Bearer ', '');
+
+  if (! token) {
+    return response.sendStatus(205);
+  }
+
+  tokenService.invalidate(token).then(isInvalidated => {
+    if (!isInvalidated) {
+      return response.sendStatus(500);
+    }
+
+    return response.sendStatus(200);
+  }).catch(errors => {
+    console.log(errors);
+
+    return response.sendStatus(500);
+  });
+});
+
 router.post('/token/refresh', (request, response) => {
   const token = request.headers.authorization?.replace('Bearer ', '');
 
@@ -62,6 +83,12 @@ router.post('/token/refresh', (request, response) => {
 
     return response.sendStatus(401);
   });
-})
+});
+
+router.get('/generate/jwk', (request, response) => {
+  const jwk = CertificateService.generatePublicJwk();
+
+  response.send(jwk);
+});
 
 export default router;

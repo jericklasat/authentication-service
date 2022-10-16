@@ -7,6 +7,10 @@ import userDetailsRepository from "../repository/UserDetailsRepository";
 
 const loginService = async (email: string, password: string) => {
   const user = await userRepository.findByEmail(email);
+  if (null == user) {
+    // TODO: implement login retry count
+    return null;
+  }
   const isPasswordMatched = await argon2.verify(user.password, password);
 
   if (! isPasswordMatched) {
