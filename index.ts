@@ -4,6 +4,7 @@ import MikroOrmConfig from './config/database/mikro-orm.config';
 import 'dotenv/config';
 import {MikroORM, RequestContext} from "@mikro-orm/core";
 import {PostgreSqlDriver} from "@mikro-orm/postgresql";
+import cors from 'cors';
 import bodyParser from "body-parser";
 import databaseInit from "./config/database/init";
 
@@ -14,6 +15,7 @@ const main = async () => {
   databaseInit.orm = await MikroORM.init<PostgreSqlDriver>(MikroOrmConfig);
   databaseInit.em = databaseInit.orm.em;
 
+  app.use(cors());
   app.use((req, res, next) => RequestContext.create(databaseInit.em, next));
   app.use(bodyParser.json());
   app.use(bodyParser.urlencoded({ extended: true }));

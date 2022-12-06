@@ -41,6 +41,8 @@ const loginService = async (email: string, password: string) => {
 
   tokenService.save(user.id, tokens.refreshToken);
 
+  // TODO: Implement audit trail
+
   return tokens;
 }
 
