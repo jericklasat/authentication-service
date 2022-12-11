@@ -10,7 +10,7 @@ import invalidRefreshTokenRepository from "../repository/InvalidRefreshTokenRepo
 const generate: _TTokenService['generate'] = (payload, expiration) => {
   const secret = fs.readFileSync('./certificates/private.pem');
 
-  return jwt.sign(payload, secret, {expiresIn: expiration ?? '2min', algorithm: 'RS256'});
+  return jwt.sign(payload, secret, {expiresIn: expiration ?? '30min', algorithm: 'RS256'});
 }
 
 const invalidate: _TTokenService['invalidate'] = async (refreshToken) => {
