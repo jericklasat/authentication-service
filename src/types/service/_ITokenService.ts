@@ -14,4 +14,5 @@ export interface _TGeneratePayload {
   email?: string;
   name?: string;
   roles?: string[];
+  type?: string;
 }

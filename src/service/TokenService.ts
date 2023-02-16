@@ -50,6 +50,10 @@ const refresh: _TTokenService['refresh'] = async (refreshToken) => {
       return createErrorMessage(decoded);
     }
 
+    if (! isRefreshToken(<string>decoded.type)) {
+      return createErrorMessage('Not a valid refresh token.');
+    }
+
     if (await isTokenCompromised(refreshToken, <string>decoded.sub)) {
       return createErrorMessage('Account is compromised.');
     }
@@ -67,11 +71,20 @@ const refresh: _TTokenService['refresh'] = async (refreshToken) => {
     delete decoded.exp;
     delete decoded.iat;
 
+    const accessToken = generate({
+      sub: decoded.sub,
+      email: decoded.email,
+      name: decoded.name,
+      roles: decoded.roles,
+      type: 'login',
+    });
+
     const newRefreshToken = generate(decoded, '30 days');
+
     save(decoded.sub, newRefreshToken);
 
     return {
-      accessToken: generate(decoded),
+      accessToken,
       refreshToken: newRefreshToken,
     }
   } catch(err: any) {
@@ -94,6 +107,10 @@ async function isTokenCompromised(refreshToken: string, userId: string) {
   });
 
   return true;
+}
+
+function isRefreshToken (type: string): boolean {
+  return 'refresh' === type;
 }
 
 function createErrorMessage(errorMessage: string) {

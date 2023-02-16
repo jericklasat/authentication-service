@@ -7,10 +7,12 @@ import userDetailsRepository from "../repository/UserDetailsRepository";
 
 const loginService = async (email: string, password: string) => {
   const user = await userRepository.findByEmail(email);
+
   if (null == user) {
     // TODO: implement login retry count
     return null;
   }
+
   const isPasswordMatched = await argon2.verify(user.password, password);
 
   if (! isPasswordMatched) {
@@ -27,23 +29,28 @@ const loginService = async (email: string, password: string) => {
   // TODO: integrate client id and search how to use it in micro services
   const details = await userDetailsRepository.findByUid(user.id);
   const roles = await userRoleRepository.getRoleNamesByUid(user.id);
-  const payload: _TGeneratePayload = {
+
+  let payload: _TGeneratePayload = {
     sub: user.id,
     email: user.emailAddress,
     name: details.getFullName(),
     roles,
+    type: 'login'
   };
 
-  const tokens = {
-    accessToken: tokenService.generate(payload),
-    refreshToken: tokenService.generate(payload, '30 days'),
-  };
+  const accessToken = tokenService.generate(payload)
 
-  tokenService.save(user.id, tokens.refreshToken);
+  payload.type = 'refresh';
+  const refreshToken = tokenService.generate(payload, '30 days');
+
+  tokenService.save(user.id, refreshToken);
 
   // TODO: Implement audit trail
 
-  return tokens;
+  return {
+    accessToken,
+    refreshToken,
+  };
 }
 
 export default  {
